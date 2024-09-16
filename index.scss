@@ -10,7 +10,8 @@ $btnColor: #3e68ff;
         gap: .5rem;
         padding: .5rem;
         background-color: gray;
-        max-width: 800px;
+        width: 800px;
+        max-width: 100vw;
     }
 
     &-controls {
@@ -27,11 +28,7 @@ $btnColor: #3e68ff;
         font-family: inherit;
         padding: 0;
         cursor: pointer;
-
-        @media screen and (-ms-high-contrast: active) {
-            border: 2px solid currentcolor;
-        }
-
+        
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -42,18 +39,22 @@ $btnColor: #3e68ff;
         color: #fff;
         border-radius: 8px;
         box-shadow: 0 3px 5px rgba(0, 0, 0, 0.18);
-
+        
         // Size
         padding: 0.25em 0.75em;
         min-width: 8rem;
         min-height: 2rem;
-
+        
         // Text
         text-align: center;
         line-height: 1.1;
         font-size: 1.2rem;
 
         transition: 220ms all ease-in-out;
+        
+        @media screen and (-ms-high-contrast: active) {
+            border: 2px solid currentcolor;
+        }
 
         &:hover,
         &:active {
@@ -69,7 +70,7 @@ $btnColor: #3e68ff;
         &--small {
             font-size: 1.15rem;
         }
-
+        
         &--block {
             width: 100%;
         }
