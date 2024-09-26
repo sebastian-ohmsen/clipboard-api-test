@@ -1,3 +1,5 @@
+import mkcert from 'vite-plugin-mkcert'
+
 /** @type {import('vite').UserConfig} */
 export default {
     css: {
@@ -6,5 +8,6 @@ export default {
                 api: 'modern-compiler'
             }
         }
-    }
+    },
+    plugins: [ mkcert() ]
 }
