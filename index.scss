@@ -1,4 +1,5 @@
 $btnColor: #3e68ff;
+$btnColor-disabled: #5c5c5c;
 
 .cb{
     &-main {
@@ -32,15 +33,13 @@ $btnColor: #3e68ff;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        align-self: start; // Optional - see "Gotchas"
+        align-self: start;
 
-        // Visual
         background-color: $btnColor;
         color: #fff;
         border-radius: 8px;
         box-shadow: 0 3px 5px rgba(0, 0, 0, 0.18);
         
-        // Size
         padding: 0.25em 0.75em;
         min-width: 8rem;
         min-height: 2rem;
@@ -65,6 +64,14 @@ $btnColor: #3e68ff;
             outline-style: solid;
             outline-color: transparent;
             box-shadow: 0 0 0 4px scale-color($btnColor, $lightness: -40%);
+        }
+
+
+        &:disabled,
+        &[disabled]{
+            cursor:not-allowed;
+            background-color: $btnColor-disabled;
+            box-shadow: none;
         }
 
         &--small {

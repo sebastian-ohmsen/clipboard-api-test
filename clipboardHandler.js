@@ -13,6 +13,8 @@
  */
 function ClipboardHandler(copyBtn, pasteBtn, ioElement) {
 
+    let setButtonDisabled = (btn, disable) => btn.disable = disable;
+
     /**
      * Enables or disables the button to copy selected text from the
      * ioElement
@@ -21,7 +23,7 @@ function ClipboardHandler(copyBtn, pasteBtn, ioElement) {
      *      True to enable the button, false to disable 
      */
     let enableCopyButton = enable => {
-        if (copyBtn) copyBtn.disabled = enable;
+        if (copyBtn) setButtonDisabled(copyBtn, !enable);
     };
 
     /**
@@ -32,7 +34,7 @@ function ClipboardHandler(copyBtn, pasteBtn, ioElement) {
      *      True to enable the button, false to disable 
      */
     let enablePasteButton = enable => {
-        if (pasteBtn) pasteBtn.disabled = enable;
+        if (pasteBtn) setButtonDisabled(pasteBtn, !enable);
     };
     
     /**
@@ -72,7 +74,7 @@ function ClipboardHandler(copyBtn, pasteBtn, ioElement) {
 
         })
         .catch(reason => {
-            appendToIo(`unable to query permission for {name: clipboard-read}: \n${reason}`);
+            appendToIo(reason);
             enablePasteButton(false);
         });
 
@@ -88,9 +90,9 @@ function ClipboardHandler(copyBtn, pasteBtn, ioElement) {
                     .then(() => {
                         enableCopyButton(true);
                     })
-                    .catch(reasons => {
+                    .catch(reason => {
                         enableCopyButton(false);
-                        appendToIo(`prompting to allow write to clipboard failed: ${reasons}`);
+                        appendToIo(reason);
                     });
             }
             else {
@@ -99,8 +101,8 @@ function ClipboardHandler(copyBtn, pasteBtn, ioElement) {
             
         })
         .catch(reason => {
-            appendToIo(`unable to query permission for {name: clipboard-write}: \n${reason}`);
             enableCopyButton(false);
+            appendToIo(reason);
         });
 
     let copySelectedText = () => {
@@ -119,7 +121,7 @@ function ClipboardHandler(copyBtn, pasteBtn, ioElement) {
                     appendToIo(result);
                 })
                 .catch(reason => {
-                    appendToIo(`failed to read from clipboard: ${reason}`);
+                    appendToIo(reason);
                 });
         }
     };
