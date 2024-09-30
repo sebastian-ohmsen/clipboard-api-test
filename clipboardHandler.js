@@ -1,42 +1,25 @@
 //@ts-check
 
+import Browser from './helper/browser';
+import StateIndicator from './helper/stateIndicators';
+
 /**
  * Handler for actions to write to or read from the local clipboard.
  * 
- * @param {HTMLButtonElement} copyBtn 
+ * @param {HTMLDivElement} copyIndicator 
  *      Button to initiate copy command
- * @param {HTMLButtonElement} pasteBtn
+ * @param {HTMLDivElement} pasteIndicator
  *      Button that initates the paste command
  * @param {HTMLTextAreaElement} ioElement
  *      Element to display the clipboard content or select text that should be
  *      transfered to the clipboard 
  */
-function ClipboardHandler(copyBtn, pasteBtn, ioElement) {
+function ClipboardHandler(copyIndicator, pasteIndicator, ioElement) {
 
-    let setButtonDisabled = (btn, disable) => btn.disable = disable;
+    let browser = new Browser();
+    let copyState = new StateIndicator(copyIndicator);
+    let pasteState = new StateIndicator(pasteIndicator);
 
-    /**
-     * Enables or disables the button to copy selected text from the
-     * ioElement
-     * 
-     * @param {Boolean} enable
-     *      True to enable the button, false to disable 
-     */
-    let enableCopyButton = enable => {
-        if (copyBtn) setButtonDisabled(copyBtn, !enable);
-    };
-
-    /**
-     * Enables or disables the button to paste clipboard value to 
-     * ioElement
-     * 
-     * @param {Boolean} enable 
-     *      True to enable the button, false to disable 
-     */
-    let enablePasteButton = enable => {
-        if (pasteBtn) setButtonDisabled(pasteBtn, !enable);
-    };
-    
     /**
      * Appends the given text value to the ioElement
      * 
@@ -48,62 +31,71 @@ function ClipboardHandler(copyBtn, pasteBtn, ioElement) {
             ioElement.value += `\n${value}`;
         }
     };
-    
-    // @ts-ignore - non standard / experimental 
-    navigator.permissions.query({ name: 'clipboard-read' })
-        .then(result => {
-            appendToIo(`clipboard-read: ${result.state}`);
-            if (result.state === 'granted') {
-                enablePasteButton(true);
-            }
-            else if (result.state === 'prompt') {
-                navigator.clipboard.readText()
-                    .then(() => {
-                        enablePasteButton(true);
-                        appendToIo('clipboard-read: granted');
 
-                    })
-                    .catch(reason => {
-                        enablePasteButton(false);
-                        appendToIo(reason);
-                    });
-            }
-               else {
-                enablePasteButton(false);
-            }
+    if (browser.isBlink) {
 
-        })
-        .catch(reason => {
-            appendToIo(reason);
-            enablePasteButton(false);
-        });
+        // @ts-ignore - non standard / experimental 
+        navigator.permissions.query({ name: 'clipboard-read' })
+            .then(result => {
+                appendToIo(`clipboard-read: ${result.state}`);
+                if (result.state === 'granted') {
+                    pasteState.setActive();
+                }
+                else if (result.state === 'prompt') {
+                    navigator.clipboard.readText()
+                        .then(() => {
+                            pasteState.setActive();;
+                            appendToIo('clipboard-read: granted');
 
-    // @ts-ignore - non standard / experimental
-    navigator.permissions.query({ name: 'clipboard-write' })
-        .then(result => {
-            appendToIo(`clipboard-write: ${result.state}`);
-            if (result.state === 'granted') {
-                enableCopyButton(true);
-            }
-            else if (result.state === 'prompt') {
-                navigator.clipboard.writeText('')
-                    .then(() => {
-                        enableCopyButton(true);
-                    })
-                    .catch(reason => {
-                        enableCopyButton(false);
-                        appendToIo(reason);
-                    });
-            }
-            else {
-                enableCopyButton(false);
-            }
-            
-        })
-        .catch(reason => {
-            enableCopyButton(false);
-            appendToIo(reason);
-        });
+                        })
+                        .catch(reason => {
+                            pasteState.setInactive();
+                            appendToIo(reason);
+                        });
+                }
+                else {
+                    pasteState.setInactive();
+                }
+
+            })
+            .catch(reason => {
+                appendToIo(reason);
+                pasteState.setInactive();
+            });
+
+        // @ts-ignore - non standard / experimental
+        navigator.permissions.query({ name: 'clipboard-write' })
+            .then(result => {
+                appendToIo(`clipboard-write: ${result.state}`);
+                if (result.state === 'granted') {
+                    copyState.setActive();    
+                }
+                else if (result.state === 'prompt') {
+                    navigator.clipboard.writeText('')
+                        .then(() => {
+                            copyState.setActive();
+                        })
+                        .catch(reason => {
+                            copyState.setInactive();
+                            appendToIo(reason);
+                        });
+                }
+                else {
+                    copyState.setInactive();
+                }
+
+            })
+            .catch(reason => {
+                copyState.setInactive();
+                appendToIo(reason);
+            });
+    }
+
+    if (browser.isGecko) {
+        console.log('disable buttons');
+        pasteState.setInactive();
+        appendToIo('Paste is disabled for Gecko browsers');
+    }
 
     let copySelectedText = () => {
         if (ioElement && ioElement.selectionStart) {
@@ -125,9 +117,6 @@ function ClipboardHandler(copyBtn, pasteBtn, ioElement) {
                 });
         }
     };
-    
-    copyBtn.addEventListener('click', copySelectedText);
-    pasteBtn.addEventListener('click', pasteClipboardContent);
 
     /**
      * Handler for key-down events
@@ -147,7 +136,9 @@ function ClipboardHandler(copyBtn, pasteBtn, ioElement) {
                     event.preventDefault();
                     break;
                 case 'v':
-                    pasteClipboardContent();
+                    if (!browser.isGecko) {
+                        pasteClipboardContent();
+                    }
                     event.stopPropagation();
                     event.preventDefault();
                     break;

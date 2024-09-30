@@ -6,12 +6,29 @@
     <title>Clipboard test</title>
 </head>
 <body>
-    <main class="cb-main">
-        <div class="cb-controls">
-            <button id="copyBtn" class="cb-button" role="button">Copy</button>
-            <button id="pasteBtn" class="cb-button" role="button">Paste</button>
+    <main>
+        <div>
+            <h1>Clipboard API testing page</h1>
+            <p>
+                If clipboard API is available use CTRL+SHIFT+ALT+C to copy the selected text to the clipboard and CTRL+SHIFT+ALT+V to insert text from the clipboard.
+            </p>
+            <p>
+                The two indicators below show whether the Copy and Paste function is available via the clipboard API.
+            </p>
         </div>
-        <textarea id="clipboardContent" class="cb-target" autofocus></textarea>
+        <secion class="cb_main">
+        <div class="cb_controls">
+            <div class="cb_elem">
+                <label for="copyStateBulb">Copy:</label>
+                <div id="copyStateBulb" class="cb_state cb_state-unknown"></div>
+            </div>
+            <div class="cb_elem">
+                <label for="pasteStateBulb">Paste:</label>
+                <div id="pasteStateBulb" class="cb_state cb_state-unknown"></div>
+            </div>
+        </div>
+        <textarea id="clipboardContent" class="cb_target" autofocus></textarea>
+    </secion>
     </main>
 
     <script type="module" src="/index.js"></script>
