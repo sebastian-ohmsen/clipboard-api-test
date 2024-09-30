@@ -7,9 +7,9 @@ import StateIndicator from './lib/stateIndicators';
  * Handler for actions to write to or read from the local clipboard.
  * 
  * @param {HTMLDivElement} copyIndicator 
- *      Button to initiate copy command
+ *      DIV element that indicates whether the copy function is available
  * @param {HTMLDivElement} pasteIndicator
- *      Button that initates the paste command
+ *      DIV element that indicates whether the paste function is available
  * @param {HTMLTextAreaElement} ioElement
  *      Element to display the clipboard content or select text that should be
  *      transfered to the clipboard 
@@ -32,6 +32,7 @@ function ClipboardHandler(copyIndicator, pasteIndicator, ioElement) {
         }
     };
 
+    /* We only use the permission API if Blink engine is used */
     if (browser.isBlink) {
 
         // @ts-ignore - non standard / experimental 
@@ -88,6 +89,7 @@ function ClipboardHandler(copyIndicator, pasteIndicator, ioElement) {
             });
     }
 
+    /* Gecko engine does not support permissions to read from the clipboard */
     if (browser.isGecko) {
         pasteState.setInactive();
         console.log('Paste is disabled for Gecko browsers');
@@ -115,7 +117,7 @@ function ClipboardHandler(copyIndicator, pasteIndicator, ioElement) {
     };
 
     /**
-     * Handler for key-down events
+     * Handler for key-down events. Reacts to shortcuts for copy and paste.
      * 
      * @param {KeyboardEvent} event 
      *      Incoming keyboard event
