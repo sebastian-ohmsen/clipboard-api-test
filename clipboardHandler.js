@@ -1,7 +1,7 @@
 //@ts-check
 
-import Browser from './helper/browser';
-import StateIndicator from './helper/stateIndicators';
+import Browser from './lib/browser';
+import StateIndicator from './lib/stateIndicators';
 
 /**
  * Handler for actions to write to or read from the local clipboard.
@@ -37,7 +37,6 @@ function ClipboardHandler(copyIndicator, pasteIndicator, ioElement) {
         // @ts-ignore - non standard / experimental 
         navigator.permissions.query({ name: 'clipboard-read' })
             .then(result => {
-                appendToIo(`clipboard-read: ${result.state}`);
                 if (result.state === 'granted') {
                     pasteState.setActive();
                 }
@@ -45,12 +44,11 @@ function ClipboardHandler(copyIndicator, pasteIndicator, ioElement) {
                     navigator.clipboard.readText()
                         .then(() => {
                             pasteState.setActive();;
-                            appendToIo('clipboard-read: granted');
 
                         })
                         .catch(reason => {
                             pasteState.setInactive();
-                            appendToIo(reason);
+                            console.error(reason);
                         });
                 }
                 else {
@@ -59,14 +57,13 @@ function ClipboardHandler(copyIndicator, pasteIndicator, ioElement) {
 
             })
             .catch(reason => {
-                appendToIo(reason);
+                console.error(reason);
                 pasteState.setInactive();
             });
 
         // @ts-ignore - non standard / experimental
         navigator.permissions.query({ name: 'clipboard-write' })
             .then(result => {
-                appendToIo(`clipboard-write: ${result.state}`);
                 if (result.state === 'granted') {
                     copyState.setActive();    
                 }
@@ -76,8 +73,8 @@ function ClipboardHandler(copyIndicator, pasteIndicator, ioElement) {
                             copyState.setActive();
                         })
                         .catch(reason => {
+                            console.error(reason);
                             copyState.setInactive();
-                            appendToIo(reason);
                         });
                 }
                 else {
@@ -86,15 +83,14 @@ function ClipboardHandler(copyIndicator, pasteIndicator, ioElement) {
 
             })
             .catch(reason => {
+                console.error(reason);
                 copyState.setInactive();
-                appendToIo(reason);
             });
     }
 
     if (browser.isGecko) {
-        console.log('disable buttons');
         pasteState.setInactive();
-        appendToIo('Paste is disabled for Gecko browsers');
+        console.log('Paste is disabled for Gecko browsers');
     }
 
     let copySelectedText = () => {
@@ -113,7 +109,7 @@ function ClipboardHandler(copyIndicator, pasteIndicator, ioElement) {
                     appendToIo(result);
                 })
                 .catch(reason => {
-                    appendToIo(reason);
+                    console.error(reason);
                 });
         }
     };
@@ -125,9 +121,6 @@ function ClipboardHandler(copyIndicator, pasteIndicator, ioElement) {
      *      Incoming keyboard event
      */
     this.keyDownHandler = (event) => {
-        console.log('incoming keydown event');
-        console.log(event);
-
         if (event.altKey && event.ctrlKey && event.shiftKey) {
             switch (event.key.toLocaleLowerCase()) {
                 case 'c':
@@ -136,6 +129,7 @@ function ClipboardHandler(copyIndicator, pasteIndicator, ioElement) {
                     event.preventDefault();
                     break;
                 case 'v':
+                case 'insert':
                     if (!browser.isGecko) {
                         pasteClipboardContent();
                     }
