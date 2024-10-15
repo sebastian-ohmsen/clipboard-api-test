@@ -12,7 +12,7 @@ import StateIndicator from './lib/stateIndicators';
  *      DIV element that indicates whether the paste function is available
  * @param {HTMLTextAreaElement} ioElement
  *      Element to display the clipboard content or select text that should be
- *      transfered to the clipboard 
+ *      transferred to the clipboard 
  */
 function ClipboardHandler(copyIndicator, pasteIndicator, ioElement) {
 
